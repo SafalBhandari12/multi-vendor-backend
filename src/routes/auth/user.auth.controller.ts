@@ -8,24 +8,20 @@ import {
   signAccessToken,
   signRefreshToken,
   storeRefreshToken,
+  verifyRefreshToken,
 } from "../../services/tokenService.js";
 import { randomUUID } from "crypto";
 import config from "../../config/index.js";
 
 export const sendOtpSchema = z.object({
   phone: z.string().min(10).max(15),
-  countryCode: z.string().min(1).max(5),
+  countryCode: z.number().min(1).max(999).optional(),
   purpose: z.enum(["LOGIN", "REGISTER"]),
 });
 
 export const verifyOtpSchema = z.object({
   phone: z.string().min(10).max(15),
-  countryCode: z
-    .string()
-    .regex(
-      /^\+[1-9]\d{0,2}$/,
-      "Invalid country code format (must be like +1, +44, +91)"
-    ),
+  countryCode: z.number().min(1).max(999).optional(),
   verificationId: z.string().min(2).max(100),
   code: z.string().min(4).max(8),
 });
@@ -41,7 +37,11 @@ class AuthController {
       };
     }
     const { phone, countryCode, purpose } = parseResult.data;
-    const result = await sendOtp({ phone, countryCode, purpose });
+    const result = await sendOtp({
+      phone,
+      countryCode: String(countryCode),
+      purpose,
+    });
     return res.json({
       ok: true,
       verificationId: result.verificationId,
@@ -60,7 +60,7 @@ class AuthController {
     const { phone, countryCode, verificationId, code } = validatedData.data;
     const validation = validateOtp({
       phone,
-      countryCode,
+      countryCode: String(countryCode),
       verificationId,
       code,
     });
@@ -73,7 +73,7 @@ class AuthController {
       user = await prisma.user.create({
         data: {
           phone,
-          countryCode,
+          countryCode: String(countryCode),
           phoneVerified: true,
           status: "ACTIVE",
           role: "CUSTOMER",
@@ -118,11 +118,9 @@ class AuthController {
       return res.status(401).json({ message: "No refresh token provided" });
     }
     let payload;
+    console.log(raw);
     try {
-      payload = (await import("jsonwebtoken")).verify(
-        raw,
-        config.refreshSecret
-      );
+      payload = verifyRefreshToken(raw);
     } catch (err) {
       return res.status(401).json({ message: "Invalid refresh token" });
     }

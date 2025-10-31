@@ -16,6 +16,7 @@ export async function sendOtp({
   )}&customerId=${encodeURIComponent(
     config.otp.customerId
   )}&flowType=SMS&mobileNumber=${encodeURIComponent(phone)}`;
+  console.log(url);
 
   const resp = await axios.post(
     url,

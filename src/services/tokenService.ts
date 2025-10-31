@@ -32,7 +32,8 @@ export async function storeRefreshToken({
   userAgent?: string | null;
 }) {
   const hashed = hashToken(refreshToken);
-  const expiresAt = new Date(Date.now() + config.refreshExpiresIn);
+  const expiresAt = new Date(Date.now() + Number(config.refreshExpiresIn));
+  console.log("expires at", expiresAt);
   return prisma.refreshToken.create({
     data: {
       userId,
@@ -59,7 +60,7 @@ export async function rotateRefreshToken({
   const old = await prisma.refreshToken.findFirst({
     where: {
       userId,
-      token: hashToken(hashedOld),
+      token: hashedOld,
       isRevoked: false,
     },
   });

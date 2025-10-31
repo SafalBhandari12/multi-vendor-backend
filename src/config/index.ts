@@ -21,4 +21,6 @@ export default {
   frontendOrigin: process.env.FRONTEND_ORIGIN || "*",
   rateLimitWindowMs: Number(process.env.RATE_LIMIT_WINDOW_MS || 60_000),
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX || 10),
+  otpLimitWindowMs: Number(process.env.OTP_LIMIT_WINDOW_MS || 300_000),
+  otpLimitMax: Number(process.env.OTP_LIMIT_MAX || 5),
 };

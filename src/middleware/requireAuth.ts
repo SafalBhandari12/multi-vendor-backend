@@ -1,29 +1,37 @@
-import type { NextFunction, Response } from "express";
-import type { AuthenticatedRequest } from "../types/auth.js";
+import type { NextFunction, Request, Response } from "express";
 import { verifyAccessToken } from "../services/tokenService.js";
 
 export default function requireAuth(
-  req: AuthenticatedRequest,
+  req: Request,
   res: Response,
   next: NextFunction
 ) {
-  const auth = req.headers.authorization;
+  try {
+    const auth = req.headers.authorization;
 
-  if (!auth || !auth.startsWith("Bearer ")) {
+    if (!auth || !auth.startsWith("Bearer ")) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const token = auth.split(" ")[1];
+    if (!token) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    const payload = verifyAccessToken(token);
+
+    if (!payload) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    if (typeof payload === "string" || !payload.sub) {
+      return res.status(401).json({ message: "Unauthorized" });
+    }
+
+    req.user = { sub: payload.sub, role: payload.role };
+    return next();
+  } catch (err) {
+    console.error("Error in requireAuth middleware:", err);
     return res.status(401).json({ message: "Unauthorized" });
   }
-
-  const token = auth.split(" ")[1];
-  if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  const payload = verifyAccessToken(token);
-
-  if (!payload) {
-    return res.status(401).json({ message: "Unauthorized" });
-  }
-
-  req.user = { sub: (payload as any).sub, role: (payload as any).role };
-  return next();
 }
