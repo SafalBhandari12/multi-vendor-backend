@@ -7,7 +7,7 @@ import bodyParser from "body-parser";
 import cors from "cors";
 import morgan from "morgan";
 import helmet from "helmet";
-import routes from "./routes/index.js";
+import routes from "./modules/index.js";
 import dotenv from "dotenv";
 import axios from "axios";
 import cookieParser from "cookie-parser";
