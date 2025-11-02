@@ -17,7 +17,7 @@ export async function requireAdmin(
     }
 
     const adminProfile = await prisma.adminProfile.findUnique({
-      where: { id: req.user.sub },
+      where: { userId: req.user.sub },
     });
     if (!adminProfile || !adminProfile.isActive) {
       return res.status(403).json({
@@ -25,6 +25,7 @@ export async function requireAdmin(
         message: "Forbidden: Inactive admin account",
       });
     }
+
     req.adminProfile = adminProfile;
     next();
   } catch (err) {

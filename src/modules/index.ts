@@ -1,5 +1,5 @@
 import express from "express";
-import authRoutes from "./user/auth.route.js";
+import authRoutes from "./user/user.auth.route.js";
 import adminRoutes from "./admin/management.route.js";
 
 const routes: express.Router = express.Router();

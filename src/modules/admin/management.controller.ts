@@ -119,7 +119,7 @@ class AdminController {
         lastName: admin.lastName,
         role: admin.role,
         status: admin.status,
-        ...admin.adminProfile,
+        adminProfile: admin.adminProfile,
       })),
     });
   }
@@ -129,7 +129,7 @@ class AdminController {
     if (!adminId) {
       return res
         .status(400)
-        .json({ ok: false, message: "adminId parameter is required" });
+        .json({ ok: false, message: "AdminId parameter is required" });
     }
 
     const admin = await AdminService.getAdminById(adminId);

@@ -21,6 +21,20 @@ router.get(
   requirePermission("MANAGE_ADMINS"),
   AdminController.getAllAdmins
 );
+router.get(
+  "/activity",
+  requireAuth,
+  requireAdmin,
+  requirePermission("MANAGE_ADMINS"),
+  AdminController.getActivityLog
+);
+router.get(
+  "/search/phone",
+  requireAuth,
+  requireAdmin,
+  requirePermission("MANAGE_ADMINS"),
+  AdminController.searchByPhone
+);
 
 router.get(
   "/:adminId",
@@ -28,14 +42,6 @@ router.get(
   requireAdmin,
   requirePermission("MANAGE_ADMINS"),
   AdminController.getAdminById
-);
-
-router.get(
-  "/search/phone",
-  requireAuth,
-  requireAdmin,
-  requirePermission("MANAGE_ADMINS"),
-  AdminController.searchByPhone
 );
 
 router.put(
@@ -70,11 +76,4 @@ router.delete(
   AdminController.deleteAdmin
 );
 
-router.get(
-  "/activity",
-  requireAuth,
-  requireAdmin,
-  requirePermission("MANAGE_ADMINS"),
-  AdminController.getActivityLog
-);
 export default router;

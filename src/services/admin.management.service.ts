@@ -12,6 +12,37 @@ class AdminService {
     ipAddress: string,
     userAgent: string
   ) {
+    let existingAdmin = await prisma.adminProfile.findFirst({
+      where: {
+        OR: [{ user: { phone: data.phone } }, { user: { email: data.email } }],
+      },
+      include: { user: true },
+    });
+    if (existingAdmin && existingAdmin.user.phone === data.phone) {
+      throw {
+        status: 400,
+        source: "createAdmin",
+        message: "Admin with this phone number already exists",
+      };
+    }
+    if (
+      existingAdmin &&
+      data.email &&
+      existingAdmin.user.email === data.email
+    ) {
+      throw {
+        status: 400,
+        message: "Admin with this email already exists",
+      };
+    }
+
+    if (existingAdmin) {
+      throw {
+        status: 400,
+        message: "Admin with this phone number already exists",
+      };
+    }
+
     let existingUser = await prisma.user.findUnique({
       where: { phone: data.phone },
       include: { adminProfile: true },
