@@ -1,6 +1,6 @@
 import express, { type Request, type Response } from "express";
 import { asyncHandler } from "../../utils/asyncHandler.js";
-import AuthController from "./user.auth.controller.js";
+import AuthController from "./auth.controller.js";
 import requireAuth from "../../middleware/requireAuth.js";
 import { otpLimiter } from "../../middleware/limiter.js";
 

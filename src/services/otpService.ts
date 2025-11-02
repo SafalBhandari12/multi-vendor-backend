@@ -23,6 +23,7 @@ export async function sendOtp({
     {},
     { headers: { authToken: config.otp.authToken } }
   );
+  console.log(resp.data);
 
   const data = resp.data?.data ?? {};
 

@@ -42,6 +42,7 @@ class AuthController {
       countryCode: String(countryCode),
       purpose,
     });
+    console.log(result);
     return res.json({
       ok: true,
       verificationId: result.verificationId,

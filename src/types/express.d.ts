@@ -1,3 +1,4 @@
+import type { AdminPermission } from "@prisma/client";
 import type { JwtPayload } from "jsonwebtoken";
 
 declare global {
@@ -6,6 +7,13 @@ declare global {
       user?: {
         sub: string;
         role?: string;
+      };
+      adminProfile?: {
+        id: string;
+        designation: string | null;
+        department: string | null;
+        permissions: AdminPermission[];
+        isActive: boolean;
       };
     }
   }
