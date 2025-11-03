@@ -1,6 +1,6 @@
 import axios from "axios";
-import config from "../config/index.js";
-import prisma from "../db/prismaClient.js";
+import config from "../../config/index.js";
+import prisma from "../../db/prismaClient.js";
 
 export async function sendOtp({
   phone,

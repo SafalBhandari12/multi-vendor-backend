@@ -23,4 +23,7 @@ export default {
   rateLimitMax: Number(process.env.RATE_LIMIT_MAX || 10),
   otpLimitWindowMs: Number(process.env.OTP_LIMIT_WINDOW_MS || 300_000),
   otpLimitMax: Number(process.env.OTP_LIMIT_MAX || 5),
+  imageKitPublicKey: process.env.IMAGE_KIT_PUBLIC_KEY || "",
+  imageKitPrivateKey: process.env.IMAGE_KIT_PRIVATE_KEY || "",
+  imageKitUrlEndpoint: process.env.IMAGE_KIT_URL_ENDPOINT || "",
 };

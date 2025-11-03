@@ -1,7 +1,7 @@
 import { AdminPermission } from "@prisma/client";
 import type { Request, Response } from "express";
 import z from "zod";
-import AdminService from "../../services/admin.management.service.js";
+import AdminService from "./management.service.js";
 
 const createAdminSchema = z.object({
   phone: z.string().min(10).max(15),

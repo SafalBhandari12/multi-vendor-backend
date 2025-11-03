@@ -2,8 +2,8 @@ import type {
   CreateAdminInput,
   UpdateAdminDetailsInput,
   UpdatePermissionsInput,
-} from "../modules/admin/management.controller.js";
-import prisma from "../db/prismaClient.js";
+} from "./management.controller.js";
+import prisma from "../../db/prismaClient.js";
 
 class AdminService {
   static async createAdmin(

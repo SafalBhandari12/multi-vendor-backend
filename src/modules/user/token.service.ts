@@ -1,7 +1,7 @@
 import jwt, { type SignOptions } from "jsonwebtoken";
-import config from "../config/index.js";
-import { hashToken, randomId } from "../utils/hash.js";
-import prisma from "../db/prismaClient.js";
+import config from "../../config/index.js";
+import { hashToken, randomId } from "../../utils/hash.js";
+import prisma from "../../db/prismaClient.js";
 
 export const signAccessToken = (payload: object) => {
   return jwt.sign(payload, config.accessSecret, {

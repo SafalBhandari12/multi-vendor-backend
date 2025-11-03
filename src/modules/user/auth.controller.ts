@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import z from "zod";
-import { sendOtp, validateOtp } from "../../services/otpService.js";
+import { sendOtp, validateOtp } from "./otp.service.js";
 import prisma from "../../db/prismaClient.js";
 import {
   revokeRefreshToken,
@@ -9,7 +9,7 @@ import {
   signRefreshToken,
   storeRefreshToken,
   verifyRefreshToken,
-} from "../../services/tokenService.js";
+} from "./token.service.js";
 import { randomUUID } from "crypto";
 import config from "../../config/index.js";
 
