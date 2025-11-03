@@ -1,6 +1,7 @@
 import { VendorStatus } from "@prisma/client";
 import prisma from "../../db/prismaClient.js";
 import type { RegisterVendorInput } from "./vendor.validation.js";
+import ImageKitService from "../../services/imagekit.service.js";
 
 class VendorService {
   static async register(data: RegisterVendorInput) {
@@ -36,7 +37,8 @@ class VendorService {
         NOT: { userId: data.userId },
       },
     });
-    if (!duplicateCheck) {
+    console.log(duplicateCheck);
+    if (duplicateCheck) {
       throw {
         message:
           "Vendor with provided business email, phone, license number, or tax ID already exists.",
@@ -44,6 +46,39 @@ class VendorService {
         source: "vendorService",
       };
     }
+
+    const [businessReg, pharmacyLic, taxDoc, logo] = await Promise.all([
+      ImageKitService.uploadFile(
+        data.files.businessRegistration[0],
+        `vendors/${data.userId}/documents`,
+        "business-registration"
+      ),
+      ImageKitService.uploadFile(
+        data.files.pharmacyLicense[0],
+        `vendors/${data.userId}/documents`,
+        "pharmacy-license"
+      ),
+      ImageKitService.uploadFile(
+        data.files.taxDocument[0],
+        `vendors/${data.userId}/documents`,
+        "tax-document"
+      ),
+      data.files.logo?.[0]
+        ? ImageKitService.uploadFile(
+            data.files.logo[0],
+            `vendors/${data.userId}/documents`,
+            "logo"
+          )
+        : Promise.resolve(null),
+    ]);
+    if (!businessReg || !pharmacyLic || !taxDoc) {
+      throw {
+        message: "Failed to upload documents. Please try again.",
+        status: 500,
+        source: "vendorService",
+      };
+    }
+
     const vendor = await prisma.vendor.create({
       data: {
         userId: data.userId,
@@ -63,10 +98,10 @@ class VendorService {
         accountNumber: data.accountNumber,
         accountHolderName: data.accountHolderName,
         ifscCode: data.ifscCode,
-        businessRegistration: data.documents.businessRegistration,
-        pharmacyLicense: data.documents.pharmacyLicense,
-        taxDocument: data.documents.taxDocument,
-        logo: data.documents.logo ?? null,
+        businessRegistration: businessReg.url,
+        pharmacyLicense: pharmacyLic.url,
+        taxDocument: taxDoc.url,
+        logo: logo?.url ?? null,
         status: VendorStatus.PENDING,
       },
       include: {

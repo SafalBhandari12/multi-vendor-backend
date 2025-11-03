@@ -21,10 +21,12 @@ export const registerVendorSchema = z.object({
 
 export type RegisterVendorInput = z.infer<typeof registerVendorSchema> & {
   userId: string;
-  documents: {
-    businessRegistration: string;
-    pharmacyLicense: string;
-    taxDocument: string;
-    logo?: string;
-  };
+  files: vendorRegistrationDocuments;
+};
+
+export type vendorRegistrationDocuments = {
+  businessRegistration: [Express.Multer.File];
+  pharmacyLicense: [Express.Multer.File];
+  taxDocument: [Express.Multer.File];
+  logo?: [Express.Multer.File];
 };
