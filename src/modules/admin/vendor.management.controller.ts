@@ -8,6 +8,7 @@ import {
   suspendVendorSchema,
 } from "./vendor.management.validation.js";
 import VendorManagementService from "./vendor.management.service.js";
+import prisma from "../../db/prismaClient.js";
 
 class VendorManagement {
   static async getAllVendors(req: Request, res: Response) {
@@ -50,13 +51,19 @@ class VendorManagement {
   static async approveVendor(req: Request, res: Response) {
     const { vendorId } = getVendorByIdParams.parse(req.params);
 
-    const adminId = req.user!.sub;
+    const userId = req.user!.sub;
 
     const { comission } = approveVendorSchema.parse(req.body);
+    const ipAddress = req.ip || null;
+    const userAgent = req.get("User-Agent") || null;
+    const entityId = vendorId;
 
     const result = await VendorManagementService.approveVendor(
       vendorId,
-      adminId,
+      userId,
+      ipAddress,
+      userAgent,
+      entityId,
       comission
     );
     return res.status(200).json({
@@ -72,13 +79,19 @@ class VendorManagement {
   }
   static async rejectVendor(req: Request, res: Response) {
     const { vendorId } = getVendorByIdParams.parse(req.params);
-    const adminId = req.user!.sub;
+    const userId = req.user!.sub;
     const { reason } = rejectVendorReasonSchema.parse(req.body);
+    const ipAddress = req.ip || null;
+    const userAgent = req.get("User-Agent") || null;
+    const entityId = vendorId;
 
     const result = await VendorManagementService.rejectVendor(
       vendorId,
-      adminId,
-      reason
+      userId,
+      reason,
+      entityId,
+      ipAddress,
+      userAgent
     );
 
     return res.status(200).json({
@@ -96,11 +109,17 @@ class VendorManagement {
     const { vendorId } = getVendorByIdParams.parse(req.params);
     const adminId = req.user!.sub;
     const { reason } = suspendVendorSchema.parse(req.body);
+    const ipAddress = req.ip || null;
+    const userAgent = req.get("User-Agent") || null;
+    const entityId = vendorId;
 
     const vendor = await VendorManagementService.suspendVendor(
       vendorId,
       adminId,
-      reason
+      reason,
+      entityId,
+      ipAddress,
+      userAgent
     );
 
     return res.status(200).json({
@@ -112,7 +131,6 @@ class VendorManagement {
       },
     });
   }
-  //   TODO: Add suspendVendor Method
   static async getVendorActivityLogs(req: Request, res: Response) {
     const { vendorId, limit, offset } = getVendorActivityLogsParams.parse(
       req.params
@@ -126,7 +144,6 @@ class VendorManagement {
 
     return res.status(200).json({
       ok: true,
-      total: logs.total,
       logs,
     });
   }

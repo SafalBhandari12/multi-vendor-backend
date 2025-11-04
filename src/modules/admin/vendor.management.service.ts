@@ -76,7 +76,10 @@ class VendorManagementService {
   }
   static async approveVendor(
     vendorId: string,
-    adminId: string,
+    userId: string,
+    ipAddress: string | null,
+    userAgent: string | null,
+    entityId: string | null,
     commission?: number
   ) {
     const vendor = await prisma.vendor.findUnique({
@@ -95,6 +98,12 @@ class VendorManagementService {
         message: "Vendor is already approved",
       };
     }
+
+    const admin = await prisma.adminProfile.findUnique({
+      where: { userId: userId },
+      select: { id: true },
+    });
+
     const result = await prisma.$transaction(async (tx) => {
       const updatedVendor = await tx.vendor.update({
         where: { id: vendorId },
@@ -111,8 +120,11 @@ class VendorManagementService {
       });
       await tx.adminActivityLog.create({
         data: {
-          adminId,
+          adminId: admin!.id,
           module: "VENDOR_MANAGEMENT",
+          entityId: entityId,
+          ipAddress: ipAddress,
+          userAgent: userAgent,
           action: "APPROVE_VENDOR",
           description: `Approved vendor ${vendor.businessName} (${vendor.id})`,
           metadata: {
@@ -126,7 +138,14 @@ class VendorManagementService {
     });
     return result;
   }
-  static async rejectVendor(vendorId: string, adminId: string, reason: string) {
+  static async rejectVendor(
+    vendorId: string,
+    userId: string,
+    reason: string,
+    entityId: string | null,
+    ipAddress?: string | null,
+    userAgent?: string | null
+  ) {
     const vendor = await prisma.vendor.findUnique({
       where: { id: vendorId },
     });
@@ -142,6 +161,10 @@ class VendorManagementService {
         message: "Vendor is already rejected",
       };
     }
+    const admin = await prisma.adminProfile.findUnique({
+      where: { userId: userId },
+      select: { id: true },
+    });
     const result = await prisma.$transaction(async (tx) => {
       const updatedVendor = await tx.vendor.update({
         where: { id: vendorId },
@@ -152,14 +175,18 @@ class VendorManagementService {
       });
       await tx.adminActivityLog.create({
         data: {
-          adminId,
+          adminId: admin!.id,
           module: "VENDOR_MANAGEMENT",
+          entityId: entityId,
+          ipAddress: ipAddress ?? null,
+          userAgent: userAgent ?? null,
           action: "REJECT_VENDOR",
           description: `Rejected vendor ${vendor.businessName} (${vendor.id})`,
           metadata: {
             vendorId,
             previousStatus: vendor.status,
             newStatus: VendorStatus.REJECTED,
+            reason: reason,
           },
         },
       });
@@ -170,7 +197,10 @@ class VendorManagementService {
   static async suspendVendor(
     vendorId: string,
     adminId: string,
-    reason: string
+    reason: string,
+    entityId: string | null,
+    ipAddress?: string | null,
+    userAgent?: string | null
   ) {
     const vendor = await prisma.vendor.findUnique({
       where: { id: vendorId },
@@ -195,12 +225,16 @@ class VendorManagementService {
         data: {
           adminId,
           module: "VENDOR_MANAGEMENT",
+          entityId: entityId,
+          ipAddress: ipAddress ?? null,
+          userAgent: userAgent ?? null,
           action: "SUSPEND_VENDOR",
           description: `Suspended vendor ${vendor.businessName} (${vendor.id})`,
           metadata: {
             vendorId,
             previousStatus: vendor.status,
             newStatus: VendorStatus.SUSPENDED,
+            reason: reason,
           },
         },
       });

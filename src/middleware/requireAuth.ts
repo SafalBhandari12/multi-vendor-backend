@@ -7,6 +7,7 @@ export default function requireAuth(
   next: NextFunction
 ) {
   try {
+    console.log("In requireAuth middleware");
     const auth = req.headers.authorization;
 
     if (!auth || !auth.startsWith("Bearer ")) {
@@ -29,6 +30,7 @@ export default function requireAuth(
     }
 
     req.user = { sub: payload.sub, role: payload.role };
+    console.log(req.user);
     return next();
   } catch (err) {
     console.error("Error in requireAuth middleware:", err);
