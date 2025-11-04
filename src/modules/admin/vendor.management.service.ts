@@ -74,6 +74,7 @@ class VendorManagementService {
     }
     return vendor;
   }
+  //   TODO: getVendorByPhone
   static async approveVendor(
     vendorId: string,
     userId: string,

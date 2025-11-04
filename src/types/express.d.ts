@@ -15,6 +15,9 @@ declare global {
         permissions: AdminPermission[];
         isActive: boolean;
       };
+      vendorProfile?: {
+        id: string;
+      };
     }
   }
 }
