@@ -240,6 +240,7 @@ model Vendor {
   businessRegistration  String?
   pharmacyLicense       String?
   taxDocument           String?
+  rejectedReason         String?
   
   verifiedAt            DateTime?
   createdAt             DateTime      @default(now())
