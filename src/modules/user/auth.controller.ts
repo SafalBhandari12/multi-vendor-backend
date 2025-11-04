@@ -1,30 +1,18 @@
 import type { Request, Response } from "express";
-import z from "zod";
-import { sendOtp, validateOtp } from "./otp.service.js";
-import prisma from "../../db/prismaClient.js";
 import {
+  sendOtp,
+  validateOtp,
   revokeRefreshToken,
   rotateRefreshToken,
   signAccessToken,
   signRefreshToken,
   storeRefreshToken,
   verifyRefreshToken,
-} from "./token.service.js";
+} from "./auth.service.js";
+import prisma from "../../db/prismaClient.js";
 import { randomUUID } from "crypto";
 import config from "../../config/index.js";
-
-export const sendOtpSchema = z.object({
-  phone: z.string().min(10).max(15),
-  countryCode: z.number().min(1).max(999).optional(),
-  purpose: z.enum(["LOGIN", "REGISTER"]),
-});
-
-export const verifyOtpSchema = z.object({
-  phone: z.string().min(10).max(15),
-  countryCode: z.number().min(1).max(999).optional(),
-  verificationId: z.string().min(2).max(100),
-  code: z.string().min(4).max(8),
-});
+import { sendOtpSchema, verifyOtpSchema } from "./auth.validation.js";
 
 class AuthController {
   static async sendOtpHandler(req: Request, res: Response) {
@@ -126,6 +114,10 @@ class AuthController {
       return res.status(401).json({ message: "Invalid refresh token" });
     }
 
+    const user = await prisma.user.findUnique({
+      where: { id: (payload as any).sub },
+    });
+
     const userId = (payload as any).sub;
     const newRaw = await rotateRefreshToken({
       oldTokenRaw: raw,
@@ -135,7 +127,7 @@ class AuthController {
     });
     const accessToken = signAccessToken({
       sub: userId,
-      role: (payload as any).role,
+      role: user?.role || "CUSTOMER",
     });
 
     res.cookie("refreshToken", newRaw, {

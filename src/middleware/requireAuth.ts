@@ -1,5 +1,5 @@
 import type { NextFunction, Request, Response } from "express";
-import { verifyAccessToken } from "../modules/user/token.service.js";
+import { verifyAccessToken } from "../modules/user/auth.service.js";
 
 export default function requireAuth(
   req: Request,

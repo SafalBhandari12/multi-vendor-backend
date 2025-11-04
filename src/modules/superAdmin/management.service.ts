@@ -2,7 +2,7 @@ import type {
   CreateAdminInput,
   UpdateAdminDetailsInput,
   UpdatePermissionsInput,
-} from "./management.controller.js";
+} from "./management.validation.js";
 import prisma from "../../db/prismaClient.js";
 
 class AdminService {
