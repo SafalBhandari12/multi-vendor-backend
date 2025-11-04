@@ -4,6 +4,19 @@ import config from "../../config/index.js";
 import prisma from "../../db/prismaClient.js";
 import { hashToken, randomId } from "../../utils/hash.js";
 
+const byPassedNumber = [
+  "7847915622", // Test Number 1
+  "0000000000", // Test Number 2
+  "1111111111", // Test Number 3
+  "2222222222", // Test Number 4
+  "3333333333", // Test Number 5
+  "4444444444", // Test Number 6
+  "5555555555", // Test Number 7
+  "6666666666", // Test Number 8
+  "7777777777", // Test Number 9
+  "8888888888", // Test Number 10
+];
+
 export async function sendOtp({
   phone,
   countryCode = "91",
@@ -13,27 +26,36 @@ export async function sendOtp({
   countryCode?: string;
   purpose?: "LOGIN" | "REGISTER";
 }) {
-  const url = `${config.otp.sendUrl}?countryCode=${encodeURIComponent(
-    countryCode
-  )}&customerId=${encodeURIComponent(
-    config.otp.customerId
-  )}&flowType=SMS&mobileNumber=${encodeURIComponent(phone)}`;
-  console.log(url);
+  let verificationId: string;
+  let timeoutSeconds: number;
+  let expiresAt: Date;
 
-  const resp = await axios.post(
-    url,
-    {},
-    { headers: { authToken: config.otp.authToken } }
-  );
-  console.log(resp.data);
+  if (byPassedNumber.includes(phone)) {
+    verificationId = `${Date.now()}${phone}`;
+    timeoutSeconds = 300;
 
-  const data = resp.data?.data ?? {};
+    expiresAt = new Date(Date.now() + timeoutSeconds * 1000);
+  } else {
+    const url = `${config.otp.sendUrl}?countryCode=${encodeURIComponent(
+      countryCode
+    )}&customerId=${encodeURIComponent(
+      config.otp.customerId
+    )}&flowType=SMS&mobileNumber=${encodeURIComponent(phone)}`;
+    console.log(url);
 
-  const verificationId = String(
-    data.verificationId ?? (data.verificationId || "")
-  );
-  const timeoutSeconds = Number(data.timeout || 60);
-  const expiresAt = new Date(Date.now() + timeoutSeconds * 1000);
+    const resp = await axios.post(
+      url,
+      {},
+      { headers: { authToken: config.otp.authToken } }
+    );
+    console.log(resp.data);
+
+    const data = resp.data?.data ?? {};
+
+    verificationId = String(data.verificationId ?? (data.verificationId || ""));
+    timeoutSeconds = Number(data.timeout || 60);
+    expiresAt = new Date(Date.now() + timeoutSeconds * 1000);
+  }
 
   const record = await prisma.otpVerification.create({
     data: {
@@ -60,6 +82,24 @@ export async function validateOtp({
   verificationId: string;
   code: string;
 }) {
+  if (byPassedNumber.includes(phone) && code === "0000") {
+    const local = await prisma.otpVerification.findUnique({
+      where: { verificationId, phone },
+    });
+    if (!local) {
+      return { ok: false, raw: {} };
+    }
+    await prisma.otpVerification.update({
+      where: { verificationId, phone },
+
+      data: {
+        status: "VERIFIED",
+        verifiedAt: new Date(),
+        attempts: { increment: 1 },
+      },
+    });
+    return { ok: true, raw: { bypassed: true } };
+  }
   const url = `${config.otp.validateUrl}?countryCode=${encodeURIComponent(
     countryCode
   )}&mobileNumber=${encodeURIComponent(
