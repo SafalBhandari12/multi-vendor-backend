@@ -17,7 +17,12 @@ dotenv.config();
 const app: express.Application = express();
 
 app.use(bodyParser.json());
-app.use(cors({ origin: "*" }));
+app.use(
+  cors({
+    origin: true,
+    credentials: true,
+  })
+);
 app.use(morgan("combined"));
 app.use(helmet());
 app.use(cookieParser());
