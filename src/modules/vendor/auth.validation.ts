@@ -72,11 +72,3 @@ export const uploadDocumentsOptional: RequestHandler = upload.fields([
   { name: "taxDocument", maxCount: 1 },
   { name: "logo", maxCount: 1 },
 ]);
-
-// Upload documents for profile update (all optional)
-export const uploadProfileDocuments: RequestHandler = upload.fields([
-  { name: "businessRegistration", maxCount: 1 },
-  { name: "pharmacyLicense", maxCount: 1 },
-  { name: "taxDocument", maxCount: 1 },
-  { name: "logo", maxCount: 1 },
-]);

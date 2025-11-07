@@ -283,7 +283,7 @@ class VendorAuthService {
     return updatedVendor;
   }
 
-  static async updateVendorProfile(userId: string, data: any, files?: any) {
+  static async updateVendorProfile(userId: string, data: any) {
     const vendor = await prisma.vendor.findUnique({
       where: { userId },
     });
@@ -348,50 +348,8 @@ class VendorAuthService {
       }
     }
 
-    // Handle document uploads if provided
-    const uploadedDocuments: any = {};
-
-    if (files?.businessRegistration?.[0]) {
-      const businessReg = await ImageKitService.uploadFile(
-        files.businessRegistration[0],
-        `vendors/${userId}/documents`,
-        "business-registration"
-      );
-      uploadedDocuments.businessRegistration = businessReg.url;
-    }
-
-    if (files?.pharmacyLicense?.[0]) {
-      const pharmacyLic = await ImageKitService.uploadFile(
-        files.pharmacyLicense[0],
-        `vendors/${userId}/documents`,
-        "pharmacy-license"
-      );
-      uploadedDocuments.pharmacyLicense = pharmacyLic.url;
-    }
-
-    if (files?.taxDocument?.[0]) {
-      const taxDoc = await ImageKitService.uploadFile(
-        files.taxDocument[0],
-        `vendors/${userId}/documents`,
-        "tax-document"
-      );
-      uploadedDocuments.taxDocument = taxDoc.url;
-    }
-
-    if (files?.logo?.[0]) {
-      const logo = await ImageKitService.uploadFile(
-        files.logo[0],
-        `vendors/${userId}/documents`,
-        "logo"
-      );
-      uploadedDocuments.logo = logo.url;
-    }
-
-    // Build update data object
-    const updateData: any = {
-      ...data,
-      ...uploadedDocuments,
-    };
+    // Build update data object (no file uploads allowed)
+    const updateData: any = { ...data };
 
     // Remove undefined values
     Object.keys(updateData).forEach(

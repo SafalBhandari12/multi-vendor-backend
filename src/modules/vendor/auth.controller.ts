@@ -246,15 +246,6 @@ class VendorController {
       });
     }
 
-    if (!req.is("multipart/form-data")) {
-      return res.status(400).json({
-        ok: false,
-        message: "Content-Type must be multipart/form-data",
-      });
-    }
-
-    const files = req.files as vendorRegistrationDocuments | undefined;
-
     const validatedData = updateVendorProfileSchema.safeParse(req.body);
 
     if (!validatedData.success) {
@@ -267,8 +258,7 @@ class VendorController {
 
     const vendor = await VendorService.updateVendorProfile(
       userId,
-      validatedData.data,
-      files
+      validatedData.data
     );
 
     return res.status(200).json({

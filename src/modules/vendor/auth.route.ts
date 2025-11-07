@@ -1,11 +1,7 @@
 import express, { Router } from "express";
 import VendorController from "./auth.controller.js";
 import requireAuth from "../../middleware/requireAuth.js";
-import {
-  uploadDocuments,
-  uploadDocumentsOptional,
-  uploadProfileDocuments,
-} from "./auth.validation.js";
+import { uploadDocuments, uploadDocumentsOptional } from "./auth.validation.js";
 
 const router: express.Router = Router();
 
@@ -27,11 +23,6 @@ router.post(
   VendorController.resubmitApplication
 );
 
-router.put(
-  "/profile",
-  requireAuth,
-  uploadProfileDocuments,
-  VendorController.updateProfile
-);
+router.put("/profile", requireAuth, VendorController.updateProfile);
 
 export default router;
